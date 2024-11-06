@@ -28,22 +28,22 @@ class ProductDataSourceTest {
         @JvmStatic
         fun `products_파일_읽어오가_테스트_데이터`() = Stream.of(
             listOf(
-                ProductResponse("콜라", 1000, 10, "탄산2+1"),
-                ProductResponse("콜라", 1000, 10, null),
-                ProductResponse("사이다", 1000, 8, "탄산2+1"),
-                ProductResponse("사이다", 1000, 7, null),
-                ProductResponse("오렌지주스", 1800, 9, "MD추천상품"),
-                ProductResponse("탄산수", 1200, 5, "탄산2+1"),
-                ProductResponse("물", 500, 10, null),
-                ProductResponse("비타민워터", 1500, 6, null),
-                ProductResponse("감자칩", 1500, 5, "반짝할인"),
-                ProductResponse("감자칩", 1500, 5, null),
-                ProductResponse("초코바", 1200, 5, "MD추천상품"),
-                ProductResponse("초코바", 1200, 5, null),
-                ProductResponse("에너지바", 2000, 5, null),
-                ProductResponse("정식도시락", 6400, 8, null),
-                ProductResponse("컵라면", 1700, 1, "MD추천상품"),
-                ProductResponse("컵라면", 1700, 10, null)
+                ProductResponse("콜라", 1000, "10", "탄산2+1"),
+                ProductResponse("콜라", 1000, "10", ""),
+                ProductResponse("사이다", 1000, "8", "탄산2+1"),
+                ProductResponse("사이다", 1000, "7", ""),
+                ProductResponse("오렌지주스", 1800, "9", "MD추천상품"),
+                ProductResponse("탄산수", 1200, "재고 없음", "탄산2+1"),
+                ProductResponse("물", 500, "10", ""),
+                ProductResponse("비타민워터", 1500, "6", ""),
+                ProductResponse("감자칩", 1500, "5", "반짝할인"),
+                ProductResponse("감자칩", 1500, "5", ""),
+                ProductResponse("초코바", 1200, "5", "MD추천상품"),
+                ProductResponse("초코바", 1200, "5", ""),
+                ProductResponse("에너지바", 2000, "5", ""),
+                ProductResponse("정식도시락", 6400, "8", ""),
+                ProductResponse("컵라면", 1700, "1", "MD추천상품"),
+                ProductResponse("컵라면", 1700, "10", "")
             )
         )
     }
