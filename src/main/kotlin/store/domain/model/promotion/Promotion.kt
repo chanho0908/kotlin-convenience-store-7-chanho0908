@@ -1,10 +1,10 @@
 package store.domain.model.promotion
 
 data class Promotions (
-    val promotions: List<Promotion>
+    val items: List<Item>
 )
 
-data class Promotion (
+data class Item (
     val name: String,
     val buy: Int,
     val get: Int,
