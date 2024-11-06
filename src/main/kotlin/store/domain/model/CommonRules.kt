@@ -1,7 +1,7 @@
 package store.domain.model
 
-enum class CommonRules(private val value: String) {
-    OUT_OF_STOCK("재고가 부족합니다.");
+enum class CommonRules(private val msg: String) {
+    OUT_OF_STOCK("재고 없음");
 
-    fun getValue(): String = value
+    override fun toString(): String = msg
 }
