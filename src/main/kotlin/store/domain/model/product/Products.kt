@@ -1,6 +1,6 @@
 package store.domain.model.product
 
-import store.domain.model.output.OutPutRules.Companion.productFormat
+import store.domain.model.output.OutputRules.Companion.productFormat
 
 data class Products(
     val items: List<Item>
