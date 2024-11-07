@@ -1,5 +1,6 @@
 package store.presentation.vm
 
+import store.domain.model.Purchase
 import store.domain.repository.ProductRepository
 import store.domain.repository.PromotionRepository
 import store.presentation.vm.model.StoreState
@@ -23,6 +24,12 @@ class ViewModel(
             promotions = promotions,
             uiEvent = UiEvent.UserAccess(guideMsg)
         )
-        println(state)
+    }
+
+    fun requestBuyProduct(request: String){
+        val products = _state.products
+        val promotions = _state.promotions
+
+        Purchase(input = request, products = products, promotions = promotions)
     }
 }

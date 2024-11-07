@@ -2,6 +2,7 @@ package store.presentation.view
 
 import store.presentation.vm.ViewModel
 import store.presentation.event.UiEvent
+import store.presentation.util.retryWhenNoException
 
 class MainView(
     private val viewModel: ViewModel,
@@ -18,8 +19,16 @@ class MainView(
                 outputView.printMessage(event.message)
                 onCompleteShowWelcomeMessage()
             }
-            is UiEvent.UserAccess -> outputView.printMessage(event.message)
+            is UiEvent.UserAccess -> {
+                outputView.printMessage(event.message)
+                getBuyProductInfo()
+            }
         }
+    }
+
+    private fun getBuyProductInfo() = retryWhenNoException {
+        val input = inputView.readItem()
+        viewModel.requestBuyProduct(input)
     }
 
     private fun onCompleteShowWelcomeMessage() {
