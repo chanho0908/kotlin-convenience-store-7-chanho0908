@@ -1,12 +1,12 @@
 package store.data.dto
 
+import store.domain.model.output.OutputRules
 import store.domain.model.product.ProductRules.PRODUCT_NAME
 import store.domain.model.product.ProductRules.PRODUCT_PRICE
 import store.domain.model.product.ProductRules.PRODUCT_QUANTITY
 import store.domain.model.product.ProductRules.PRODUCT_PROMOTION
-import store.domain.model.CommonRules.OUT_OF_STOCK
-import store.domain.model.CommonRules.STOCK_UNIT
 import store.domain.model.product.Item
+import store.domain.model.output.OutputRules.STOCK_UNIT
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -32,7 +32,7 @@ fun List<String>.toProductResponse(): ProductResponse {
 
     val price = this[PRODUCT_PRICE.getIndex()].toInt()
 
-    val quantity = if (this[PRODUCT_QUANTITY.getIndex()] == "0") OUT_OF_STOCK.toString()
+    val quantity = if (this[PRODUCT_QUANTITY.getIndex()] == "0") OutputRules.OUT_OF_STOCK.toString()
     else this[PRODUCT_QUANTITY.getIndex()] + STOCK_UNIT.toString()
 
     val promotion = if (this[PRODUCT_PROMOTION.getIndex()] == "null") ""
