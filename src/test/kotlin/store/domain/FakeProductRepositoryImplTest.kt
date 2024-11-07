@@ -39,8 +39,9 @@ class FakeProductRepositoryImplTest {
     @ParameterizedTest
     @MethodSource("사용자_구매_상품_입력시_숫자_한영_쉼표_대괄호_외_입력시_에러_데이터")
     fun `잘못된 입력값 예외 테스트`(input: String) {
-        Assertions.assertThatThrownBy { Purchase(input, products, promotions)
-            }.isInstanceOf(IllegalArgumentException::class.java)
+        Assertions.assertThatThrownBy {
+            Purchase(input, products, promotions)
+        }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessage("$INVALID_INPUT_FORMAT${OutputRules.GUIDE}")
     }
 
