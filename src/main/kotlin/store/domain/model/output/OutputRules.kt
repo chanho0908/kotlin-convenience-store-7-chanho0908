@@ -18,7 +18,7 @@ enum class OutputRules(private val msg: String) {
                 product.price,
                 product.quantity,
                 product.promotion
-            )
+            ).trim()
         }
     }
 }
