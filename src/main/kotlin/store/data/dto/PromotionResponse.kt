@@ -1,6 +1,6 @@
 package store.data.dto
 
-import store.domain.model.promotion.Promotion
+import store.domain.model.promotion.PromotionItem
 import store.domain.model.promotion.PromotionRules.PROMOTION_NAME
 import store.domain.model.promotion.PromotionRules.PROMOTION_BUY
 import store.domain.model.promotion.PromotionRules.PROMOTION_GET
@@ -14,8 +14,8 @@ data class PromotionResponse(
     val startDate: String,
     val endDate: String,
 ){
-    fun toDomainModel(): Promotion {
-        return Promotion(
+    fun toDomainModel(): PromotionItem {
+        return PromotionItem(
             name = name,
             buy = buy,
             get = get,

@@ -1,6 +1,6 @@
 package store.domain.model.output
 
-import store.domain.model.product.Item
+import store.domain.model.product.ProductItem
 
 enum class OutputRules(private val msg: String) {
     WELCOME("안녕하세요. W편의점입니다.\n현재 보유하고 있는 상품입니다.\n"),
@@ -12,7 +12,7 @@ enum class OutputRules(private val msg: String) {
     override fun toString(): String = msg
 
     companion object {
-        fun productFormat(product: Item): String {
+        fun productFormat(product: ProductItem): String {
             return PRODUCT.msg.format(
                 product.name,
                 product.price,
