@@ -5,14 +5,9 @@ import store.domain.model.output.OutputRules.Companion.productFormat
 data class Products(
     val items: List<Item>
 ) {
-    fun joinToLineBreak() = items.joinToString("\n") { toProductFormat(it) }
+    fun joinToLineBreak() = items.joinToString("\n") { toUiModel(it) }
 
-    private fun toProductFormat(product: Item) = productFormat(
-        name = product.name,
-        price = product.price,
-        quantity = product.quantity,
-        promotion = product.promotion
-    )
+    private fun toUiModel(product: Item) = productFormat(product)
 }
 
 data class Item(
