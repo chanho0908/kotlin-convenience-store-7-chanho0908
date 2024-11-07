@@ -1,42 +1,44 @@
-package store.domain.model
+package store.domain.usecase
 
 import store.domain.ext.splitByComma
 import store.domain.ext.splitByHyphen
 import store.domain.model.Constants.COMMA
 import store.domain.model.output.OutputRules
 import store.domain.model.product.Products
-import store.domain.model.promotion.Promotions
 import store.domain.model.Constants.SQUARE_BRACKETS_LEFT
 import store.domain.model.Constants.SQUARE_BRACKETS_RIGHT
+import store.domain.model.Exception
 import store.domain.model.output.OutputRules.STOCK_UNIT
 import store.domain.model.Exception.NOT_SALES
 
-class Purchase(val input: String, val products: Products, val promotions: Promotions) {
-    init {
-        require(input.isNotEmpty()) { Exception.INVALID_INPUT }
-        require(input.matches(REGEX)) { Exception.INVALID_INPUT_FORMAT }
-        checkOtherValidation()
+class CheckOrderValidationUseCase {
+    operator fun invoke(order: String, products: Products) {
+        require(order.isNotEmpty()) { Exception.INVALID_INPUT }
+        require(order.matches(REGEX)) { Exception.INVALID_INPUT_FORMAT }
+        checkOtherValidation(order, products)
     }
 
-    private fun checkOtherValidation() {
-        if (input.contains("$COMMA")) {
-            input.splitByComma().forEach {
-                checkOrder(it)
+    private fun checkOtherValidation(order: String, products: Products) {
+        if (order.contains("$COMMA")) {
+            order.splitByComma().forEach {
+                checkOrder(it, products)
             }
         } else {
-            checkOrder(input)
+            checkOrder(order, products)
         }
     }
 
-    private fun checkOrder(order: String) {
+
+
+    private fun checkOrder(order: String, products: Products) {
         checkSquareBrackets(order)
         checkDelimiter(order)
         val name = extractProductName(order)
         val quantity = extractProductQuantity(order)
         validQuantity(quantity)
-        hasProduct(name)
-        outOfStock(name)
-        notEnoughStock(name, quantity.toInt())
+        hasProduct(name, products)
+        outOfStock(name, products)
+        notEnoughStock(name, quantity.toInt(), products)
     }
 
     private fun checkSquareBrackets(order: String) {
@@ -54,7 +56,7 @@ class Purchase(val input: String, val products: Products, val promotions: Promot
         }
     }
 
-    private fun hasProduct(order: String) {
+    private fun hasProduct(order: String, products: Products) {
         require(products.items.any { it.name == order }) { NOT_SALES }
     }
 
@@ -62,22 +64,22 @@ class Purchase(val input: String, val products: Products, val promotions: Promot
         require(productQuantity.toIntOrNull() != null) { Exception.INVALID_INPUT }
     }
 
-    private fun outOfStock(name: String) {
-        val stockQuantity = getStockQuantity(name)
+    private fun outOfStock(name: String, products: Products) {
+        val stockQuantity = getStockQuantity(name, products)
         val notOutOfStock = stockQuantity.any { it != "${OutputRules.OUT_OF_STOCK}" }
         require(notOutOfStock) { Exception.NOT_ENOUGH_STOCK }
     }
 
-    private fun notEnoughStock(name: String, quantity: Int) {
-        val stockQuantity = getNotOutOfStockQuantity(name)
+    private fun notEnoughStock(name: String, quantity: Int, products: Products) {
+        val stockQuantity = getNotOutOfStockQuantity(name, products)
         require(stockQuantity >= quantity) { Exception.NOT_ENOUGH_STOCK }
     }
 
-    private fun getStockQuantity(name: String): List<String> {
+    private fun getStockQuantity(name: String, products: Products): List<String> {
         return products.items.filter { it.name == name }.map { it.quantity }
     }
 
-    private fun getNotOutOfStockQuantity(name: String): Int {
+    private fun getNotOutOfStockQuantity(name: String, products: Products): Int {
         return products.items
             .filter { it.name == name && it.quantity != "${OutputRules.OUT_OF_STOCK}" }
             .map { it.quantity.removeSuffix("$STOCK_UNIT") }
