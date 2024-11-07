@@ -28,8 +28,6 @@ class CheckOrderValidationUseCase {
         }
     }
 
-
-
     private fun checkOrder(order: String, products: Products) {
         checkSquareBrackets(order)
         checkDelimiter(order)
