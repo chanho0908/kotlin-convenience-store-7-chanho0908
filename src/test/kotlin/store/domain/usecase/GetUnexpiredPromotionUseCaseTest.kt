@@ -36,7 +36,7 @@ class GetUnexpiredPromotionUseCaseTest {
     }
 
     @Test
-    fun `시작일이_오늘보다_늦은_날짜의_프로모션_테스트`() {
+    fun `시작되지_않은_날짜의_프로모션_테스트`() {
         val promotion = "사장님이미쳤어요"
         val expected = getUnexpiredPromotionUseCase(promotion)
         assertEquals(expected, Promotions(listOf()))
