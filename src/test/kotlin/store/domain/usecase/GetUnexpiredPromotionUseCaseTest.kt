@@ -22,9 +22,7 @@ class GetUnexpiredPromotionUseCaseTest {
         val expected = getUnexpiredPromotionUseCase(promotion)
         assertEquals(
             expected,
-            Promotions(listOf(
-                PromotionItem("탄산2+1", 2, 1, "2024-01-01", "2024-12-31"))
-            )
+            PromotionItem("탄산2+1", 2, 1, "2024-01-01", "2024-12-31")
         )
     }
 
@@ -32,13 +30,13 @@ class GetUnexpiredPromotionUseCaseTest {
     fun `종료일이_끝난_날짜의_프로모션_테스트`() {
         val promotion = "무료반품"
         val expected = getUnexpiredPromotionUseCase(promotion)
-        assertEquals(expected, Promotions(listOf()))
+        assertEquals(expected, null)
     }
 
     @Test
     fun `시작되지_않은_날짜의_프로모션_테스트`() {
         val promotion = "사장님이미쳤어요"
         val expected = getUnexpiredPromotionUseCase(promotion)
-        assertEquals(expected, Promotions(listOf()))
+        assertEquals(expected, null)
     }
 }
