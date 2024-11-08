@@ -17,6 +17,6 @@ class ExtractOrdersUseCase {
     private fun extractOrder(productName: String, productQuantity: String): Order {
         val name = productName.extractProductName()
         val quantity = productQuantity.extractProductQuantity().toInt()
-        return Order(name, quantity)
+        return Order(name, quantity, null)
     }
 }

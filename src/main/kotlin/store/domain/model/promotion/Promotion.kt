@@ -3,8 +3,8 @@ package store.domain.model.promotion
 data class Promotions(
     val items: List<PromotionItem>
 ) {
-    fun filterPromotion(promotionName: String): List<PromotionItem> {
-        return items.filter { it.name == promotionName }
+    fun filterPromotion(promotionName: String): PromotionItem? {
+        return items.find { it.name == promotionName }
     }
 }
 
