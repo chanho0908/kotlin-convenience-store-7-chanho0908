@@ -1,17 +1,20 @@
 package store.presentation.vm
 
+import store.domain.model.output.OutputRules
 import store.domain.model.product.Products
 import store.domain.usecase.CheckOrderValidationUseCase
 import store.domain.repository.ProductRepository
 import store.domain.repository.PromotionRepository
+import store.domain.usecase.ExtractOrdersUseCase
 import store.presentation.vm.model.StoreState
 import store.presentation.event.UiEvent
+import store.presentation.vm.model.Orders
 
 class ViewModel(
     private val productRepository: ProductRepository,
     private val promotionRepository: PromotionRepository,
-    private val messageGenerator: MessageGenerator,
-    private val checkOrderValidationUseCase: CheckOrderValidationUseCase
+    private val checkOrderValidationUseCase: CheckOrderValidationUseCase,
+    private val extractOrdersUseCase: ExtractOrdersUseCase
 ) {
     private var _state = StoreState.create()
     val state get() = _state
@@ -27,8 +30,14 @@ class ViewModel(
         )
     }
 
-    fun requestBuyProduct(request: String){
+    fun orderBuyProduct(order: String){
         val products = _state.products
-        checkOrderValidationUseCase(order = request, products = products)
+        checkOrderValidationUseCase(order = order, products = products)
+        onCompleteCheckOrderValidation(order)
+    }
+
+    private fun onCompleteCheckOrderValidation(order: String) {
+        val extractedOrders = Orders(extractOrdersUseCase(order))
+        _state = _state.copy(orders = extractedOrders)
     }
 }

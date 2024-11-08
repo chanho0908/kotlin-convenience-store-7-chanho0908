@@ -28,7 +28,7 @@ class MainView(
 
     private fun getBuyProductInfo() = retryWhenNoException {
         val input = inputView.readItem()
-        viewModel.requestBuyProduct(input)
+        viewModel.orderBuyProduct(input)
     }
 
     private fun onCompleteShowWelcomeMessage() {
