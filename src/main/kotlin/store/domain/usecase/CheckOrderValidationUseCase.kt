@@ -1,5 +1,7 @@
 package store.domain.usecase
 
+import store.domain.ext.extractProductName
+import store.domain.ext.extractProductQuantity
 import store.domain.ext.splitByComma
 import store.domain.ext.splitByHyphen
 import store.domain.model.Constants.COMMA
@@ -31,8 +33,8 @@ class CheckOrderValidationUseCase {
     private fun checkOrder(order: String, products: Products) {
         checkSquareBrackets(order)
         checkDelimiter(order)
-        val name = extractProductName(order)
-        val quantity = extractProductQuantity(order)
+        val name = order.extractProductName()
+        val quantity = order.extractProductQuantity()
         validQuantity(quantity)
         hasProduct(name, products)
         outOfStock(name, products)
@@ -82,16 +84,6 @@ class CheckOrderValidationUseCase {
             .filter { it.name == name && it.quantity != "${OutputRules.OUT_OF_STOCK}" }
             .map { it.quantity.removeSuffix("$STOCK_UNIT") }
             .sumOf { it.toInt() }
-    }
-
-    private fun extractProductName(order: String): String {
-        val productName = order.splitByHyphen().first()
-        return productName.trim().removePrefix("$SQUARE_BRACKETS_LEFT")
-    }
-
-    private fun extractProductQuantity(order: String): String {
-        val productQuantity = order.splitByHyphen().last()
-        return productQuantity.trim().removeSuffix("$SQUARE_BRACKETS_RIGHT")
     }
 
     companion object {
