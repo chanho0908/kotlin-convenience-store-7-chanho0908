@@ -1,6 +1,5 @@
-package store.domain
+package store.domain.repository
 
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
@@ -14,7 +13,6 @@ import store.domain.model.promotion.Promotions
 import store.domain.usecase.CheckOrderValidationUseCase
 import java.util.stream.Stream
 import store.domain.model.Exception.INVALID_INPUT_FORMAT
-import store.domain.model.output.OutputRules
 
 @TestInstance(Lifecycle.PER_CLASS)
 class FakeProductRepositoryImplTest {

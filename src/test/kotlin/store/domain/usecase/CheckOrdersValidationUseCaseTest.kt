@@ -1,4 +1,4 @@
-package store.domain
+package store.domain.usecase
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
@@ -9,7 +9,6 @@ import store.data.datasource.PromotionDataSource
 import store.data.repository.ProductRepositoryImpl
 import store.data.repository.PromotionRepositoryImpl
 import store.domain.model.Exception
-import store.domain.usecase.CheckOrderValidationUseCase
 import store.domain.model.product.Products
 import store.domain.model.promotion.Promotions
 
