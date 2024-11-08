@@ -3,9 +3,13 @@ package store.domain.ext
 import store.domain.model.Constants
 import store.domain.model.Constants.SQUARE_BRACKETS_LEFT
 import store.domain.model.Constants.SQUARE_BRACKETS_RIGHT
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
-fun String.isNumeric(): Boolean {
-    return this.all { it.isDigit() }
+fun String.toLocalDate(): LocalDate{
+    val pattern = "yyyy-MM-dd"
+    val format = DateTimeFormatter.ofPattern(pattern)
+    return LocalDate.parse(this, format)
 }
 
 fun String.splitByComma(): List<String> = this.split(Constants.COMMA.toString())
