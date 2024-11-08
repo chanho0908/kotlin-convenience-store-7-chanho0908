@@ -6,14 +6,14 @@ import store.domain.ext.toLocalDate
 import store.domain.model.promotion.PromotionItem
 import java.time.LocalDateTime
 
-class GetUnexpiredPromotionUseCase(
+class GetInProgressPromotionUseCase(
     private val promotionRepository: PromotionRepository
 ) {
     operator fun invoke(promotionName: String): PromotionItem? {
-        return unExpiredPromotion(promotionName)
+        return inProgressPromotion(promotionName)
     }
 
-    private fun unExpiredPromotion(promotionName: String): PromotionItem? {
+    private fun inProgressPromotion(promotionName: String): PromotionItem? {
         val foundPromotion = getPromotion(promotionName)
         if (foundPromotion != null &&
             foundPromotion.startDate.toLocalDate() <= today().toLocalDate() &&
