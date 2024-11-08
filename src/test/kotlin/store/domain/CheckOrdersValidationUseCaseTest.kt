@@ -13,7 +13,7 @@ import store.domain.usecase.CheckOrderValidationUseCase
 import store.domain.model.product.Products
 import store.domain.model.promotion.Promotions
 
-class CheckOrderValidationUseCaseTest {
+class CheckOrdersValidationUseCaseTest {
 
     private lateinit var products: Products
     private lateinit var promotions: Promotions

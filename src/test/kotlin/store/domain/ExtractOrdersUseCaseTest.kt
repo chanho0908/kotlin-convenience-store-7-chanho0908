@@ -5,22 +5,22 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import store.domain.usecase.ExtractOrderUseCase
+import store.domain.usecase.ExtractOrdersUseCase
 import store.presentation.vm.model.Order
 import java.util.stream.Stream
 
-class ExtractOrderUseCaseTest {
-    private lateinit var extractOrderUseCase: ExtractOrderUseCase
+class ExtractOrdersUseCaseTest {
+    private lateinit var extractOrdersUseCase: ExtractOrdersUseCase
 
     @BeforeEach
     fun setUp() {
-        extractOrderUseCase = ExtractOrderUseCase()
+        extractOrdersUseCase = ExtractOrdersUseCase()
     }
 
     @ParameterizedTest
     @MethodSource("사용자_주문을_상품_이름과_수량으로_분리_테스트")
     fun `사용자 주문을 상품 이름과 수량으로 분리`(input: String, expected: List<Order>) {
-        val result = extractOrderUseCase(input)
+        val result = extractOrdersUseCase(input)
         assertEquals(result, expected)
     }
 

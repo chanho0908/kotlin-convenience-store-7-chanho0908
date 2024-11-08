@@ -6,7 +6,7 @@ import store.domain.ext.splitByComma
 import store.domain.ext.splitByHyphen
 import store.presentation.vm.model.Order
 
-class ExtractOrderUseCase {
+class ExtractOrdersUseCase {
     operator fun invoke(orderList: String): List<Order> {
         return orderList.splitByComma().map {
             val splitOrder = it.splitByHyphen()
