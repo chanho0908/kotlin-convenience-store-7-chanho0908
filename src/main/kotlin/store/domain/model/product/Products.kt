@@ -13,7 +13,7 @@ data class Products(
     }
 
     fun hasPromotion(name: String): String?{
-        return items.first { it.name == name && it.promotion != null }.promotion
+        return items.find { it.name == name && it.promotion != null }?.promotion
     }
 
     private fun toUiModel(product: ProductItem) = productFormat(product)
