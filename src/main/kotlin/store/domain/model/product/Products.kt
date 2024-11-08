@@ -6,14 +6,14 @@ import store.domain.model.output.OutputRules.Companion.productFormat
 data class Products(
     val items: List<ProductItem>
 ) {
-    fun joinToLineBreak() = items.joinToString("\n") { toUiModel(it) }
+    private fun joinToLineBreak() = items.joinToString("\n") { toUiModel(it) }
 
     fun makeCurrentStockGuideMessage(): String{
         return "${this.joinToLineBreak()}\n\n${OutputRules.GUIDE}"
     }
 
-    fun hasPromotion(name: String): List<String?>{
-        return items.filter { it.name == name }.map { it.promotion }
+    fun hasPromotion(name: String): String?{
+        return items.first { it.name == name && it.promotion != null }.promotion
     }
 
     private fun toUiModel(product: ProductItem) = productFormat(product)

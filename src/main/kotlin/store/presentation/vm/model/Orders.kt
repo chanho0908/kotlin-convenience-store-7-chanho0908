@@ -1,10 +1,11 @@
 package store.presentation.vm.model
 
 data class Orders(
-    val orders: List<Order>
+    val items: List<Order>
 )
 
 data class Order (
     val name: String,
-    val quantity: Int
+    val quantity: Int,
+    val promotion: String? = null
 )
