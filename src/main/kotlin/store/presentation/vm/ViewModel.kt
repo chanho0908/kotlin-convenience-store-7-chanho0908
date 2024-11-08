@@ -1,11 +1,11 @@
 package store.presentation.vm
 
+import store.domain.model.product.Products
 import store.domain.usecase.CheckOrderValidationUseCase
 import store.domain.repository.ProductRepository
 import store.domain.repository.PromotionRepository
 import store.presentation.vm.model.StoreState
 import store.presentation.event.UiEvent
-import store.presentation.vm.model.MessageGenerator
 
 class ViewModel(
     private val productRepository: ProductRepository,
@@ -19,7 +19,7 @@ class ViewModel(
     fun getStoreState() {
         val products = productRepository.getProduct()
         val promotions = promotionRepository.getPromotion()
-        val guideMsg = messageGenerator.makeCurrentStockGuideMessage(products)
+        val guideMsg = products.makeCurrentStockGuideMessage()
         _state = state.copy(
             products = products,
             promotions = promotions,
