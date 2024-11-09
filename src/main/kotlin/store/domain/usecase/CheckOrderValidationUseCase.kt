@@ -2,6 +2,7 @@ package store.domain.usecase
 
 import store.domain.ext.extractProductName
 import store.domain.ext.extractProductQuantity
+import store.domain.ext.removeStockUnitSuffix
 import store.domain.ext.splitByComma
 import store.domain.ext.splitByHyphen
 import store.domain.model.Constants.COMMA
@@ -82,7 +83,7 @@ class CheckOrderValidationUseCase {
     private fun getNotOutOfStockQuantity(name: String, products: Products): Int {
         return products.items
             .filter { it.name == name && it.quantity != "${OutputRules.OUT_OF_STOCK}" }
-            .map { it.quantity.removeSuffix("$STOCK_UNIT") }
+            .map { it.quantity.removeStockUnitSuffix() }
             .sumOf { it.toInt() }
     }
 

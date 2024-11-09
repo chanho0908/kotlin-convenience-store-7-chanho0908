@@ -1,5 +1,6 @@
 package store.data.dto
 
+import store.domain.ext.toKoreanUnit
 import store.domain.model.output.OutputRules
 import store.domain.model.product.ProductRules.PRODUCT_NAME
 import store.domain.model.product.ProductRules.PRODUCT_PRICE
@@ -7,8 +8,6 @@ import store.domain.model.product.ProductRules.PRODUCT_QUANTITY
 import store.domain.model.product.ProductRules.PRODUCT_PROMOTION
 import store.domain.model.product.ProductItem
 import store.domain.model.output.OutputRules.STOCK_UNIT
-import java.text.NumberFormat
-import java.util.Locale
 
 data class ProductResponse(
     val name: String,
@@ -19,7 +18,7 @@ data class ProductResponse(
     fun toDomainModel(): ProductItem {
         val item = ProductItem(
             name = name,
-            price = NumberFormat.getNumberInstance(Locale.KOREA).format(this.price),
+            price = this.price.toKoreanUnit(),
             quantity = quantity,
             promotion = promotion
         )
