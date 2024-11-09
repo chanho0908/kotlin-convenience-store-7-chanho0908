@@ -3,10 +3,11 @@ package store.domain.ext
 import store.domain.model.Constants
 import store.domain.model.Constants.SQUARE_BRACKETS_LEFT
 import store.domain.model.Constants.SQUARE_BRACKETS_RIGHT
+import store.domain.model.output.OutputRules.STOCK_UNIT
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-fun String.toLocalDate(): LocalDate{
+fun String.toLocalDate(): LocalDate {
     val pattern = "yyyy-MM-dd"
     val format = DateTimeFormatter.ofPattern(pattern)
     return LocalDate.parse(this, format)
@@ -25,3 +26,5 @@ fun String.extractProductQuantity(): String {
     val productQuantity = this.splitByHyphen().last()
     return productQuantity.trim().removeSuffix("$SQUARE_BRACKETS_RIGHT")
 }
+
+fun String.removeStockUnitSuffix(): String = this.removeSuffix("$STOCK_UNIT")
