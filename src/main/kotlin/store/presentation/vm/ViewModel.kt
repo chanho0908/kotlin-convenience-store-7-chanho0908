@@ -35,12 +35,17 @@ class ViewModel(
     }
 
     private fun onCompleteCheckOrderValidation(order: String) {
-        val extractedOrders = Orders(extractOrdersUseCase(order))
-        _state = _state.copy(orders = extractedOrders)
+        val extractedOrders = extractOrdersUseCase(order)
+        val newOrders = Orders(extractedOrders.map {
+            Order(it.first, it.second, PromotionState.NoPromotion)
+        }
+        )
+
+        _state = _state.copy(orders = newOrders)
         updateOrder()
     }
 
-    private fun updateOrder(){
+    private fun updateOrder() {
         val updateOrders = _state.orders.items.map { order ->
             val hasPromotion = _state.products.hasPromotion(order.name)
             setOrderPromotion(order, hasPromotion)
@@ -48,12 +53,12 @@ class ViewModel(
         _state = _state.copy(orders = Orders(updateOrders))
     }
 
-    private fun setOrderPromotion(currentOrder: Order, hasPromotion: String?): Order{
-        return if (hasPromotion != null){
+    private fun setOrderPromotion(currentOrder: Order, hasPromotion: String?): Order {
+        return if (hasPromotion != null) {
             val isInProgressPromotion = getInProgressPromotionUseCase(hasPromotion)
             val promotionState = PromotionState.create(isInProgressPromotion)
             currentOrder.copy(promotion = promotionState)
-        }else {
+        } else {
             currentOrder
         }
     }

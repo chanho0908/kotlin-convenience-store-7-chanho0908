@@ -3,6 +3,7 @@ package store.presentation.vm.model
 import store.domain.model.promotion.PromotionItem
 
 sealed class PromotionState{
+    object NoPromotion: PromotionState()
     data class InProgress(val name: String, val buy: Int, val get: Int): PromotionState()
     object NotInProgress: PromotionState()
 

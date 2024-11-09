@@ -7,5 +7,5 @@ data class Orders(
 data class Order (
     val name: String,
     val quantity: Int,
-    val promotion: PromotionState?
+    val promotion: PromotionState
 )
