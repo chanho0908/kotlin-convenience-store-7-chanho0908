@@ -1,5 +1,6 @@
 package store.domain.model.product
 
+import store.domain.model.Exception
 import store.domain.model.output.OutputRules
 import store.domain.model.output.OutputRules.Companion.productFormat
 
@@ -14,6 +15,10 @@ data class Products(
 
     fun hasPromotion(name: String): String?{
         return items.find { it.name == name && it.promotion != null }?.promotion
+    }
+
+    fun getPrice(name: String): String {
+        return items.find { it.name == name }?.price ?: "${Exception.NOT_SALES}"
     }
 
     private fun toUiModel(product: ProductItem) = productFormat(product)
