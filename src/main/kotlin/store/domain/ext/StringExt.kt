@@ -27,4 +27,4 @@ fun String.extractProductQuantity(): String {
     return productQuantity.trim().removeSuffix("$SQUARE_BRACKETS_RIGHT")
 }
 
-fun String.removeStockUnitSuffix(): String = this.removeSuffix("$STOCK_UNIT")
+fun String.removeStockUnitSuffix(): String = this.removeSuffix("$STOCK_UNIT")fun String.removeNumberFormat():Int = this.replace(",", "").toInt()
