@@ -254,5 +254,9 @@ class ViewModel(
             _state.copy(paymentReceipt = _state.paymentReceipt.removeFromShortageStock(productName))
     }
 
+    fun whenUserRequestMembership(input: String){
+        if (input.isYes()) _state = _state.copy(membershipApply = true)
+    }
+
     private fun getProductPrice(name: String): Int = _state.products.getPrice(name).toInt()
 }

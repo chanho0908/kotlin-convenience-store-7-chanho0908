@@ -2,6 +2,7 @@ package store.presentation.view
 
 import store.domain.ext.isNo
 import store.domain.ext.isYes
+import store.domain.model.output.OutputRules
 import store.presentation.vm.ViewModel
 import store.presentation.event.UiEvent
 import store.presentation.util.retryWhenNoException
@@ -16,7 +17,7 @@ class MainView(
     }
 
     private fun checkUiState() {
-        when(val event = viewModel.state.uiEvent){
+        when (val event = viewModel.state.uiEvent) {
             is UiEvent.Loading -> onUiEventLoading(event)
             is UiEvent.UserAccess -> onUiEventUserAccess(event)
             is UiEvent.FinalizeOrder -> onUiEventFinalizeOrder(event)
@@ -47,9 +48,10 @@ class MainView(
     private fun onUiEventFinalizeOrder(event: UiEvent.FinalizeOrder) {
         additionalPromotion(event.notReceivedPromotionMsg)
         additionalShortageStock(event.shortageStockMsg)
+        askMemberShip()
     }
 
-    private fun additionalPromotion(notReceivedPromotionMessages: List<String>?){
+    private fun additionalPromotion(notReceivedPromotionMessages: List<String>?) {
         notReceivedPromotionMessages?.let { message ->
             message.forEachIndexed { idx, value ->
                 val response = suggestAdditionalOption(value)
@@ -58,7 +60,7 @@ class MainView(
         }
     }
 
-    private fun additionalShortageStock(shortageStockMessages: List<String>?){
+    private fun additionalShortageStock(shortageStockMessages: List<String>?) {
         shortageStockMessages?.let { messages ->
             messages.forEach { product ->
                 val response = suggestAdditionalOption(product)
@@ -67,7 +69,12 @@ class MainView(
         }
     }
 
-    private fun suggestAdditionalOption(msg: String): String{
+    private fun askMemberShip() {
+        val input = suggestAdditionalOption(OutputRules.MEMBERSHIP_DISCOUNT.toString())
+        viewModel.whenUserRequestMembership(input)
+    }
+
+    private fun suggestAdditionalOption(msg: String): String {
         outputView.printShortageStockMsg(msg)
         return retryWhenNoException {
             val input = inputView.readItem()

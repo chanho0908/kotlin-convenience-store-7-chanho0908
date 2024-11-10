@@ -10,6 +10,7 @@ data class StoreState(
     val orders: Orders,
     val paymentReceipt : PaymentReceipt,
     val giftReceipt : GiftReceipt,
+    val membershipApply: Boolean,
     val uiEvent: UiEvent
 ) {
     companion object {
@@ -18,6 +19,7 @@ data class StoreState(
             Orders(emptyList()),
             PaymentReceipt(emptyList(), emptyMap()),
             GiftReceipt(mutableMapOf(), emptyList()),
+            false,
             UiEvent.Loading(OutputRules.WELCOME.toString())
         )
     }
