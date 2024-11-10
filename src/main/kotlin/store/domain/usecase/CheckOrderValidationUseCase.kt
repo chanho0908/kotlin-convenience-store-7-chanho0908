@@ -11,7 +11,6 @@ import store.domain.model.product.Products
 import store.domain.model.Constants.SQUARE_BRACKETS_LEFT
 import store.domain.model.Constants.SQUARE_BRACKETS_RIGHT
 import store.domain.model.Exception
-import store.domain.model.output.OutputRules.STOCK_UNIT
 import store.domain.model.Exception.NOT_SALES
 
 class CheckOrderValidationUseCase {

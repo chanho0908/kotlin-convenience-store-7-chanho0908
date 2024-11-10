@@ -19,11 +19,7 @@ data class Products(
     }
 
     fun getPromotionStock(name: String) = items.find { it.name == name && it.promotion != null }
-        ?.quantity?.removeStockUnitSuffix()?.toInt() ?: 0
-
-    fun isPromotionStockEnough(name: String, quantity: Int): Boolean {
-        val promotionStockQuantity = items.find { it.name == name && it.promotion != null }
-            ?.quantity?.removeStockUnitSuffix()?.toInt() ?: 0
+        ?.quantity?.removeStockUnitSuffix() ?: 0
 
     fun isPromotionStockEnough(name: String, quantity: Int): Boolean {
         val promotionStockQuantity = getPromotionStock(name)
@@ -43,6 +39,6 @@ data class Products(
 data class ProductItem(
     val name: String,
     val price: String,
-    val quantity: String,
+    var quantity: String,
     val promotion: String?
 )
