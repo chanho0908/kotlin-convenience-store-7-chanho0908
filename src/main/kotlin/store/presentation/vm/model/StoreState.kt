@@ -8,12 +8,16 @@ import store.presentation.event.UiEvent
 data class StoreState(
     val products: Products,
     val orders: Orders,
+    val paymentReceipt : PaymentReceipt,
+    val giftReceipt : GiftReceipt,
     val uiEvent: UiEvent
 ) {
     companion object {
         fun create() = StoreState(
             Products(emptyList()),
             Orders(emptyList()),
+            PaymentReceipt(emptyList(), emptyMap()),
+            GiftReceipt(emptyMap(), emptyList()),
             UiEvent.Loading(OutputRules.WELCOME.toString())
         )
     }
