@@ -1,7 +1,6 @@
 package store.presentation.view
 
 import store.domain.ext.isNo
-import store.domain.ext.isYes
 import store.domain.model.output.OutputRules
 import store.presentation.vm.ViewModel
 import store.presentation.event.UiEvent
@@ -21,6 +20,7 @@ class MainView(
             is UiEvent.Loading -> onUiEventLoading(event)
             is UiEvent.UserAccess -> onUiEventUserAccess(event)
             is UiEvent.FinalizeOrder -> onUiEventFinalizeOrder(event)
+            is UiEvent.MakeOutReceipt -> onUiEventFinalizeOrder(event)
         }
     }
 
@@ -49,6 +49,7 @@ class MainView(
         additionalPromotion(event.notReceivedPromotionMsg)
         additionalShortageStock(event.shortageStockMsg)
         askMemberShip()
+        makeOutRecipe()
     }
 
     private fun additionalPromotion(notReceivedPromotionMessages: List<String>?) {
@@ -75,11 +76,27 @@ class MainView(
     }
 
     private fun suggestAdditionalOption(msg: String): String {
-        outputView.printShortageStockMsg(msg)
+        outputView.printMessage(msg)
         return retryWhenNoException {
             val input = inputView.readItem()
             viewModel.whenUserInputYesOrNo(input)
             input
         }
+    }
+
+    private fun makeOutRecipe(){
+        viewModel.makeOutRecipeState()
+        checkUiState()
+    }
+
+    private fun onUiEventFinalizeOrder(event: UiEvent.MakeOutReceipt){
+        outputView.printReceiptHeader()
+        outputView.printMessage(event.receipt.productReceipt)
+        outputView.printPromotionReceiptHeader()
+        outputView.printMessage(event.receipt.promotionRecipe)
+        outputView.printDottedLine()
+        outputView.printMessage(event.receipt.totalAmount)
+        outputView.printMessage(event.receipt.eventDiscount)
+        outputView.printMessage(event.receipt.payment)
     }
 }
