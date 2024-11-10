@@ -44,8 +44,8 @@ class ProductDataSourceTest {
                 ProductResponse("초코바", 1200, "5개", ""),
                 ProductResponse("에너지바", 2000, "5개", ""),
                 ProductResponse("정식도시락", 6400, "8개", ""),
-                ProductResponse("컵라면", 1700, "1개", "MD추천상품"),
-                ProductResponse("컵라면", 1700, "10개", "")
+                ProductResponse("컵라면", 1700, "재고 없음", "MD추천상품"),
+                ProductResponse("컵라면", 1700, "재고 없음", "")
             )
         )
     }
