@@ -1,20 +1,31 @@
 package store.presentation.vm
 
-import store.domain.usecase.CheckOrderValidationUseCase
+import store.domain.ext.isNo
+import store.domain.ext.isYes
+import store.domain.ext.toKoreanUnit
 import store.domain.repository.ProductRepository
+import store.domain.usecase.CheckOrderValidationUseCase
 import store.domain.usecase.ExtractOrdersUseCase
 import store.domain.usecase.GetInProgressPromotionUseCase
-import store.presentation.vm.model.StoreState
+import store.domain.usecase.ValidateYesNoInputUseCase
 import store.presentation.event.UiEvent
+import store.presentation.vm.model.ApplyPromotion
 import store.presentation.vm.model.Order
 import store.presentation.vm.model.Orders
+import store.presentation.vm.model.PaymentReceipt
+import store.presentation.vm.model.PaymentReceiptItem
 import store.presentation.vm.model.PromotionState
+import store.presentation.vm.model.PromotionState.InProgress
+import store.presentation.vm.model.PromotionState.NoPromotion
+import store.presentation.vm.model.PromotionState.NotInProgress
+import store.presentation.vm.model.StoreState
 
 class ViewModel(
     private val productRepository: ProductRepository,
     private val checkOrderValidationUseCase: CheckOrderValidationUseCase,
     private val extractOrdersUseCase: ExtractOrdersUseCase,
-    private val getInProgressPromotionUseCase: GetInProgressPromotionUseCase
+    private val getInProgressPromotionUseCase: GetInProgressPromotionUseCase,
+    private val validateYesNoInputUseCase: ValidateYesNoInputUseCase
 ) {
     private var _state = StoreState.create()
     val state get() = _state
@@ -32,6 +43,7 @@ class ViewModel(
         val products = _state.products
         checkOrderValidationUseCase(order = order, products = products)
         onCompleteCheckOrderValidation(order)
+        finalizeState()
     }
 
     private fun onCompleteCheckOrderValidation(order: String) {
@@ -74,8 +86,150 @@ class ViewModel(
                 addPaymentReceipt(order.name, order.quantity, productPrice)
         }
     }
+
+    private fun handleOrderPromotionStock(order: Order, price: Int, promotion: InProgress) {
+        if (_state.products.isPromotionStockEnough(order.name, order.quantity)) {
+            whenPromotionStockEnough(order, price, promotion)
         } else {
-            currentOrder
+            calculateWithShortageStockPromotion(order, promotion)
         }
     }
+
+    private fun whenPromotionStockEnough(order: Order, productPrice: Int, promotion: InProgress) {
+        val promotionResult = calculateWithPromotion(order.quantity, promotion.buy, promotion.get)
+        updateReceiptForPromotion(order.name, productPrice, promotionResult)
+    }
+
+    private fun calculateShortageStock(
+        stockQuantity: Int,
+        orderQuantity: Int,
+        promotion: InProgress
+    ): Int {
+        val bundles = stockQuantity % (promotion.buy + promotion.get)
+        val remainder = orderQuantity - stockQuantity
+        val shortageStock = bundles + remainder
+        return shortageStock
+    }
+
+    private fun calculateWithShortageStockPromotion(order: Order, promotion: InProgress) {
+        val stock = _state.products.getPromotionStock(order.name)
+        val productPrice = getProductPrice(order.name)
+        val shortageStock = calculateShortageStock(stock, order.quantity, promotion)
+        val (buyingAmount, promotionGift) =
+            calculatePromotionDetails(shortageStock, order, promotion)
+        val applyPromotion = ApplyPromotion(buyingAmount, promotionGift, false)
+        handleReceiptForNotEnoughPromotion(
+            order.name, applyPromotion, buyingAmount * productPrice, shortageStock
+        )
+    }
+
+    private fun calculatePromotionDetails(
+        shortageStock: Int, order: Order, promotion: InProgress
+    ): Pair<Int, Int> {
+        val maxPromotionStock = (order.quantity - shortageStock) / (promotion.buy + promotion.get)
+        val userBuyingAmount = calculateUserBuy(maxPromotionStock, shortageStock, promotion.buy)
+        val promotionGift = maxPromotionStock * promotion.get
+        return Pair(userBuyingAmount, promotionGift)
+    }
+
+    private fun calculateUserBuy(maxInPromotionStock: Int, shortageStock: Int, buy: Int): Int {
+        return maxInPromotionStock * buy + shortageStock
+    }
+
+    private fun handleReceiptForNotEnoughPromotion(
+        orderName: String,
+        result: ApplyPromotion,
+        paymentAmount: Int,
+        shortageStock: Int,
+    ) {
+        addPaymentReceipt(orderName, result.totalQuantity, paymentAmount, shortageStock)
+        val currentGiftQuantity = _state.giftReceipt.items.getOrDefault(orderName, 0)
+        val updatedGiftQuantity = currentGiftQuantity + result.giftQuantity
+        updateGiftReceipt(orderName, updatedGiftQuantity, false)
+    }
+
+    private fun calculateWithPromotion(quantity: Int, buy: Int, get: Int): ApplyPromotion {
+        val bundles = quantity / (buy + get)
+        val remainder = quantity % (buy + get)
+        val totalQuantity = bundles * buy + remainder
+        val giftQuantity = bundles * get
+        val hasReceivedPromotion = remainder == buy
+        return ApplyPromotion(totalQuantity, giftQuantity, hasReceivedPromotion)
+    }
+
+    private fun updateReceiptForPromotion(name: String, price: Int, result: ApplyPromotion) {
+        addPaymentReceipt(name, result.totalQuantity, result.totalQuantity * price)
+
+        val currentGiftQuantity = _state.giftReceipt.items.getOrDefault(name, 0)
+        val updatedGiftQuantity = currentGiftQuantity + result.giftQuantity
+
+        updateGiftReceipt(name, updatedGiftQuantity, result.hasReceivedPromotion)
+    }
+
+    // 프로모션 증정 항목 추가
+    private fun updateGiftReceipt(name: String, giftQuantity: Int, hasReceivedPromotion: Boolean) {
+        val updatedNotReceivedPromotion = getReceivedPromotion(name, hasReceivedPromotion)
+        _state = _state.copy(
+            giftReceipt = _state.giftReceipt.copy(
+                items = _state.giftReceipt.items.apply {
+                    this[name] = this.getOrDefault(name, 0) + giftQuantity
+                },
+                notReceivedPromotion = updatedNotReceivedPromotion
+            )
+        )
+    }
+
+    // 사용자가 결제 해야할 항목 추가
+    private fun addPaymentReceipt(
+        productName: String,
+        productQuantity: Int,
+        productPrice: Int,
+        shortageStock: Int = 0
+    ) {
+        if (shortageStock > 0) addShortageStock(productName, shortageStock)
+        val updatedReceipt = getUpdatePaymentReceipt(productName, productQuantity, productPrice)
+        _state = _state.copy(paymentReceipt = updatedReceipt)
+    }
+
+    // 포로모션 적용 없이 계산할 수량을 계산
+    private fun addShortageStock(productName: String, shortageStock: Int) {
+        val updatedShortageStock =
+            _state.paymentReceipt.shortageStock + (productName to shortageStock)
+
+        _state = _state.copy(
+            paymentReceipt = _state.paymentReceipt.copy(
+                shortageStock = updatedShortageStock
+            )
+        )
+    }
+
+    private fun getUpdatePaymentReceipt(name: String, quantity: Int, price: Int): PaymentReceipt {
+        return _state.paymentReceipt.copy(
+            items = _state.paymentReceipt.items + PaymentReceiptItem(
+                name = name,
+                price = quantity.toKoreanUnit(),
+                quantity = price
+            )
+        )
+    }
+
+    // 추가 증정 프로모션 추가
+    private fun getReceivedPromotion(name: String, hasReceivedPromotion: Boolean): List<String> {
+        if (hasReceivedPromotion) {
+            return _state.giftReceipt.notReceivedPromotion + name
+        }
+        return _state.giftReceipt.notReceivedPromotion
+    }
+
+    private fun finalizeState() {
+        val finalizedState = UiEvent.FinalizeOrder(
+            notReceivedPromotionMsg = _state.giftReceipt.createNotReceivedPromotionMsg(),
+            shortageStockMsg = _state.paymentReceipt.createShortageStockMsg()
+        )
+        _state = _state.copy(uiEvent = finalizedState)
+    }
+
+
+
+    private fun getProductPrice(name: String): Int = _state.products.getPrice(name).toInt()
 }
