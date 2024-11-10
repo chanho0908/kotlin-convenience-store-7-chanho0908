@@ -229,7 +229,30 @@ class ViewModel(
         _state = _state.copy(uiEvent = finalizedState)
     }
 
+    fun whenUserInputYesOrNo(input: String) {
+        validateYesNoInputUseCase(input)
+    }
 
+    fun addOrRemoveNotReceivedPromotion(idx: Int, input: String) {
+        if (input.isNo()) { noReceivePromotion(idx) }
+        if (input.isYes()) { addNotReceivedPromotion(idx) }
+    }
+
+    private fun noReceivePromotion(idx: Int) {
+        val notReceivedPromotion = _state.giftReceipt.removeNotReceivedPromotion(idx)
+        _state = _state.copy(
+            giftReceipt = _state.giftReceipt.copy(notReceivedPromotion = notReceivedPromotion)
+        )
+    }
+
+    private fun addNotReceivedPromotion(idx: Int) {
+        _state.giftReceipt.addNotReceivedPromotion(idx)
+    }
+
+    fun noPayShortageStock(productName: String) {
+        _state =
+            _state.copy(paymentReceipt = _state.paymentReceipt.removeFromShortageStock(productName))
+    }
 
     private fun getProductPrice(name: String): Int = _state.products.getPrice(name).toInt()
 }
