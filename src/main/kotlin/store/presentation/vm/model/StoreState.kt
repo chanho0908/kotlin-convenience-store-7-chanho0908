@@ -3,6 +3,8 @@ package store.presentation.vm.model
 import store.domain.model.output.OutputRules
 import store.domain.model.product.Products
 import store.domain.model.promotion.Promotions
+import store.domain.model.receipt.GiftReceipt
+import store.domain.model.receipt.PaymentReceipt
 import store.presentation.event.UiEvent
 
 data class StoreState(

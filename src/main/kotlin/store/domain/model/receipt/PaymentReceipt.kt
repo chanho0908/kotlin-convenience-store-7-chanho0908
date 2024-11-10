@@ -1,7 +1,5 @@
-package store.presentation.vm.model
+package store.domain.model.receipt
 
-import store.domain.ext.removeNumberFormat
-import store.domain.ext.toKoreanUnit
 import store.domain.model.output.OutputRules
 
 data class PaymentReceipt(
@@ -31,13 +29,13 @@ data class PaymentReceipt(
     private fun createNewItem(item: PaymentReceiptItem, shortageStockAmount: Int): PaymentReceiptItem{
         val shortageStockPrice = item.quantity * shortageStockAmount
         val newQuantity = item.quantity - shortageStockAmount
-        val newPrice = item.price.removeNumberFormat() - shortageStockPrice
-        return PaymentReceiptItem(item.name, newPrice.toKoreanUnit(), newQuantity)
+        val newPrice = item.price - shortageStockPrice
+        return PaymentReceiptItem(item.name, newPrice, newQuantity)
     }
 }
 
 data class PaymentReceiptItem(
     val name: String,
-    val price: String,
+    val price: Int,
     val quantity: Int
 )

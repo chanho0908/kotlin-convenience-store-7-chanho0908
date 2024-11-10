@@ -1,4 +1,4 @@
-package store.presentation.vm.model
+package store.domain.model.receipt
 
 import store.domain.model.output.OutputRules
 
