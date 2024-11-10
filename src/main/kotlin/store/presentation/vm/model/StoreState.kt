@@ -17,7 +17,7 @@ data class StoreState(
             Products(emptyList()),
             Orders(emptyList()),
             PaymentReceipt(emptyList(), emptyMap()),
-            GiftReceipt(emptyMap(), emptyList()),
+            GiftReceipt(mutableMapOf(), emptyList()),
             UiEvent.Loading(OutputRules.WELCOME.toString())
         )
     }
