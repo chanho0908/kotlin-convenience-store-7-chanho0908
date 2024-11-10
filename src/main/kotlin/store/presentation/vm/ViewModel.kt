@@ -57,6 +57,23 @@ class ViewModel(
             currentOrder.copy(promotion = promotionState)
         } ?: currentOrder
     }
+
+    private fun finalizeOrderCalculation() {
+        _state.orders.items.forEach { order ->
+            val promotion = order.promotion
+            handleOrderPromotionStatus(promotion, order)
+        }
+    }
+
+    private fun handleOrderPromotionStatus(promotion: PromotionState, order: Order) {
+        val productPrice = getProductPrice(order.name)
+
+        when (promotion) {
+            is InProgress -> handleOrderPromotionStock(order, productPrice, promotion)
+            is NotInProgress, NoPromotion ->
+                addPaymentReceipt(order.name, order.quantity, productPrice)
+        }
+    }
         } else {
             currentOrder
         }
