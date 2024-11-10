@@ -25,6 +25,8 @@ data class Products(
         val promotionStockQuantity = items.find { it.name == name && it.promotion != null }
             ?.quantity?.removeStockUnitSuffix()?.toInt() ?: 0
 
+    fun isPromotionStockEnough(name: String, quantity: Int): Boolean {
+        val promotionStockQuantity = getPromotionStock(name)
         return promotionStockQuantity >= quantity
     }
 
