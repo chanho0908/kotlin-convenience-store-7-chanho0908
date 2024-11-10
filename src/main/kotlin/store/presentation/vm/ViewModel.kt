@@ -19,7 +19,7 @@ class ViewModel(
     private var _state = StoreState.create()
     val state get() = _state
 
-    fun getStoreState() {
+    fun initializeStoreState() {
         val products = productRepository.getProduct()
         val guideMsg = products.makeCurrentStockGuideMessage()
         _state = state.copy(
@@ -28,7 +28,7 @@ class ViewModel(
         )
     }
 
-    fun orderBuyProduct(order: String) {
+    fun processOrder(order: String) {
         val products = _state.products
         checkOrderValidationUseCase(order = order, products = products)
         onCompleteCheckOrderValidation(order)
