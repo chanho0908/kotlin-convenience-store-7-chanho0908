@@ -8,14 +8,14 @@ class OutputView {
     }
 
     fun printReceiptHeader() {
-        println(OutputRules.RECIPE_CATEGORY.toString())
+        println("\n${OutputRules.RECIPE_CATEGORY}")
     }
 
     fun printPromotionReceiptHeader() {
-        println(OutputRules.RECIPE_PROMOTION.toString())
+        println("${OutputRules.RECIPE_PROMOTION}")
     }
 
     fun printDottedLine() {
-        println(OutputRules.DOTTED_LINE.toString())
+        println("${OutputRules.DOTTED_LINE}")
     }
 }
