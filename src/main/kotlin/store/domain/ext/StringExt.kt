@@ -3,6 +3,7 @@ package store.domain.ext
 import store.domain.model.Constants
 import store.domain.model.Constants.SQUARE_BRACKETS_LEFT
 import store.domain.model.Constants.SQUARE_BRACKETS_RIGHT
+import store.domain.model.output.OutputRules
 import store.domain.model.output.OutputRules.STOCK_UNIT
 import store.domain.model.output.OutputRules.NO
 import store.domain.model.output.OutputRules.YES
@@ -29,7 +30,12 @@ fun String.extractProductQuantity(): String {
     return productQuantity.trim().removeSuffix("$SQUARE_BRACKETS_RIGHT")
 }
 
-fun String.removeStockUnitSuffix(): Int = this.removeSuffix("$STOCK_UNIT").toInt()
+fun String.removeStockUnitSuffix(): Int {
+    if (this == "${OutputRules.OUT_OF_STOCK}") {
+        return 0
+    }
+    return this.removeSuffix("$STOCK_UNIT").toInt()
+}
 
 fun String.isNo(): Boolean = this.equals(NO.toString(), ignoreCase = true)
 
