@@ -212,7 +212,7 @@ class ViewModel(
     ): PaymentReceipt {
         return _state.paymentReceipt.copy(
             items = _state.paymentReceipt.items + PaymentReceiptItem(
-                name = name, price = price, quantity = quantity
+                name = name, price = price, originPrice = getProductPrice(name), quantity = quantity
             )
         )
     }
@@ -239,8 +239,12 @@ class ViewModel(
     }
 
     fun addOrRemoveNotReceivedPromotion(idx: Int, input: String) {
-        if (input.isNo()) { noReceivePromotion(idx) }
-        if (input.isYes()) { addNotReceivedPromotion(idx) }
+        if (input.isNo()) {
+            noReceivePromotion(idx)
+        }
+        if (input.isYes()) {
+            addNotReceivedPromotion(idx)
+        }
     }
 
     private fun noReceivePromotion(idx: Int) {
@@ -263,8 +267,6 @@ class ViewModel(
     fun whenUserRequestMembership(input: String) {
         if (input.isYes()) _state = _state.copy(membershipApply = true)
     }
-
-    private fun getProductPrice(name: String): Int = _state.products.getPrice(name).toInt()
 
     fun makeOutRecipeState() {
         val receipt = makeOutReceiptUseCase(
@@ -326,4 +328,6 @@ class ViewModel(
     fun whenUserSelectAdditionalPurchase() {
         _state = _state.clearOrdersAndReceipts()
     }
+
+    private fun getProductPrice(name: String): Int = _state.products.getPrice(name).toInt()
 }

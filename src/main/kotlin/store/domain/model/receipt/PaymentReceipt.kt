@@ -30,12 +30,13 @@ data class PaymentReceipt(
         val shortageStockPrice = item.quantity * shortageStockAmount
         val newQuantity = item.quantity - shortageStockAmount
         val newPrice = item.price - shortageStockPrice
-        return PaymentReceiptItem(item.name, newPrice, newQuantity)
+        return PaymentReceiptItem(item.name, newPrice, item.originPrice, newQuantity)
     }
 }
 
 data class PaymentReceiptItem(
     val name: String,
+    val originPrice: Int,
     val price: Int,
     val quantity: Int
 )
