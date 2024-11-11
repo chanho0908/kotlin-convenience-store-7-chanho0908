@@ -27,6 +27,7 @@ enum class OutputRules(private val msg: String) {
     RECIPE_EVENT_DISCOUNT("행사할인\t\t\t\t\t\t-%d"),
     RECIPE_MEMBERSHIP_DISCOUNT("멤버십할인\t\t\t\t\t\t-%s"),
     RECIPE_TOTAL_PRICE("내실돈\t\t\t\t\t\t%s"),
+    END("\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)"),
     YES("Y"),
     NO("N");
 
