@@ -304,6 +304,7 @@ class ViewModel(
     ) {
         if (isPromotionSoldOut) stock[1].quantity = "${nonPromotionStock - soldStock}$STOCK_UNIT"
         val promotionStockQuantity = stock[0].quantity.removeStockUnitSuffix()
+        // 프로모션 재고가 구매한 재고보다 적다면
         if (promotionStockQuantity < soldStock) {
             whenPromotionStockNotEnough(stock, nonPromotionStock, soldStock, promotionStockQuantity)
         } else {
@@ -318,7 +319,7 @@ class ViewModel(
         promotionStock: Int
     ) {
         stock[0].quantity = "${OutputRules.OUT_OF_STOCK}"
-        stock[1].quantity = "${nonPromotionStock - soldStock - promotionStock}$STOCK_UNIT"
+        stock[1].quantity = "${nonPromotionStock + promotionStock - soldStock }$STOCK_UNIT"
     }
 
     private fun getSumOfProductQuantity(product: PaymentReceiptItem, receipt: GiftReceipt): Int {
