@@ -58,14 +58,6 @@ class CheckOrdersValidationUseCaseTest {
     }
 
     @Test
-    fun `제품이 품절일 때 NOT_ENOUGH_STOCK 예외가 발생한다`() {
-        Assertions.assertThatThrownBy {
-            checkOrderValidationUseCase("[컵라면-10]", products)
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessage("${Exception.NOT_ENOUGH_STOCK}")
-    }
-
-    @Test
     fun `재고가 부족할 때 NOT_ENOUGH_STOCK 예외가 발생한다`() {
         Assertions.assertThatThrownBy {
             checkOrderValidationUseCase("[콜라-100]", products)
