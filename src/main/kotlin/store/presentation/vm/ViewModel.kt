@@ -4,6 +4,7 @@ import store.domain.ext.isNo
 import store.domain.ext.isYes
 import store.domain.ext.removeStockUnitSuffix
 import store.domain.model.output.OutputRules
+import store.domain.model.output.OutputRules.OUT_OF_STOCK
 import store.domain.model.output.OutputRules.STOCK_UNIT
 import store.domain.model.product.ProductItem
 import store.domain.model.receipt.GiftReceipt
@@ -283,7 +284,7 @@ class ViewModel(
             val currentStock = _state.products.items.filter { it.name == product.name }
             if (currentStock.size == 1) removeNonPromotionProduct(currentStock, soldStock)
             if (currentStock.size == 2) {
-                val isPromotionSoldOut = currentStock[0].quantity == "${OutputRules.OUT_OF_STOCK}"
+                val isPromotionSoldOut = currentStock[0].quantity == "$OUT_OF_STOCK"
                 val nonPromotionStock = currentStock[1].quantity.removeStockUnitSuffix()
                 removePromotionStock(nonPromotionStock, isPromotionSoldOut, currentStock, soldStock)
             }
@@ -292,7 +293,7 @@ class ViewModel(
 
     private fun removeNonPromotionProduct(currentStock: List<ProductItem>, soldStock: Int) {
         val calculatedSoldStock = (currentStock[0].quantity.removeStockUnitSuffix() - soldStock)
-        currentStock[0].quantity = if (calculatedSoldStock == 0) OutputRules.OUT_OF_STOCK.toString()
+        currentStock[0].quantity = if (calculatedSoldStock == 0) OUT_OF_STOCK.toString()
         else calculatedSoldStock.toString() + STOCK_UNIT.toString()
     }
 
@@ -317,8 +318,10 @@ class ViewModel(
         soldStock: Int,
         promotionStock: Int
     ) {
-        stock[0].quantity = "${OutputRules.OUT_OF_STOCK}"
-        stock[1].quantity = "${nonPromotionStock + promotionStock - soldStock }$STOCK_UNIT"
+        stock[0].quantity = "$OUT_OF_STOCK"
+        val afterSoldQuantity = nonPromotionStock + promotionStock - soldStock
+        stock[1].quantity = if (afterSoldQuantity == 0) "$OUT_OF_STOCK"
+        else "$afterSoldQuantity$STOCK_UNIT"
     }
 
     private fun getSumOfProductQuantity(product: PaymentReceiptItem, receipt: GiftReceipt): Int {
