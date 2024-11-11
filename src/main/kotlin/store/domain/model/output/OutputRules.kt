@@ -8,8 +8,8 @@ enum class OutputRules(private val msg: String) {
     OUT_OF_STOCK("재고 없음"),
     STOCK_UNIT("개"),
     PRODUCT("- %s %s원 %s %s"),
-    NOT_RECEIVED_PROMOTION("현재 %s은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)"),
-    STORAGE_STOCK("현재 %s %s개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)"),
+    NOT_RECEIVED_PROMOTION("\n현재 %s은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)"),
+    STORAGE_STOCK("\n현재 %s %s개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)"),
     MEMBERSHIP_DISCOUNT("\n멤버십 할인을 받으시겠습니까? (Y/N)"),
     MEMBERSHIP_DISCOUNT_MAX("8000"),
     RECIPE_CATEGORY(

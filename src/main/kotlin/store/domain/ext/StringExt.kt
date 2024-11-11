@@ -31,7 +31,6 @@ fun String.extractProductQuantity(): String {
 
 fun String.removeStockUnitSuffix(): Int = this.removeSuffix("$STOCK_UNIT").toInt()
 
-fun String.removeNumberFormat():Int = this.replace(",", "").toInt()
-
 fun String.isNo(): Boolean = this.equals(NO.toString(), ignoreCase = true)
+
 fun String.isYes(): Boolean = this.equals(YES.toString(), ignoreCase = true)
