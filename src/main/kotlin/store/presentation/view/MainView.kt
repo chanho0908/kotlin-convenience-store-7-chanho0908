@@ -21,7 +21,7 @@ class MainView(
             is UiEvent.Loading -> onUiEventLoading(event)
             is UiEvent.UserAccess -> onUiEventUserAccess(event)
             is UiEvent.FinalizeOrder -> onUiEventFinalizeOrder(event)
-            is UiEvent.MakeOutReceipt -> onUiEventFinalizeOrder(event)
+            is UiEvent.MakeOutReceipt -> onUiEventMakeOutReceipt(event)
         }
     }
 
@@ -103,7 +103,7 @@ class MainView(
         checkUiState()
     }
 
-    private fun onUiEventFinalizeOrder(event: UiEvent.MakeOutReceipt){
+    private fun onUiEventMakeOutReceipt(event: UiEvent.MakeOutReceipt){
         outputView.printReceiptHeader()
         outputView.printMessage(event.receipt.productReceipt)
         outputView.printPromotionReceiptHeader()
