@@ -88,8 +88,11 @@ class ViewModel(
 
         when (promotion) {
             is InProgress -> handleOrderPromotionStock(order, productPrice, promotion)
-            is NotInProgress, NoPromotion ->
-                addPaymentReceipt(order.name, order.quantity, productPrice)
+            is NotInProgress, NoPromotion -> addPaymentReceipt(
+                order.name,
+                order.quantity,
+                productPrice
+            )
         }
     }
 
@@ -101,15 +104,15 @@ class ViewModel(
         }
     }
 
-    private fun whenPromotionStockEnough(order: Order, productPrice: Int, promotion: InProgress) {
+    private fun whenPromotionStockEnough(
+        order: Order, productPrice: Int, promotion: InProgress
+    ) {
         val promotionResult = calculateWithPromotion(order.quantity, promotion.buy, promotion.get)
         updateReceiptForPromotion(order.name, productPrice, promotionResult)
     }
 
     private fun calculateShortageStock(
-        stockQuantity: Int,
-        orderQuantity: Int,
-        promotion: InProgress
+        stockQuantity: Int, orderQuantity: Int, promotion: InProgress
     ): Int {
         val bundles = stockQuantity % (promotion.buy + promotion.get)
         val remainder = orderQuantity - stockQuantity
@@ -121,8 +124,9 @@ class ViewModel(
         val stock = _state.products.getPromotionStock(order.name)
         val productPrice = getProductPrice(order.name)
         val shortageStock = calculateShortageStock(stock, order.quantity, promotion)
-        val (buyingAmount, promotionGift) =
-            calculatePromotionDetails(shortageStock, order, promotion)
+        val (buyingAmount, promotionGift) = calculatePromotionDetails(
+            shortageStock, order, promotion
+        )
         val applyPromotion = ApplyPromotion(buyingAmount, promotionGift, false)
         handleReceiptForNotEnoughPromotion(
             order.name, applyPromotion, buyingAmount * productPrice, shortageStock
@@ -173,24 +177,22 @@ class ViewModel(
     }
 
     // 프로모션 증정 항목 추가
-    private fun updateGiftReceipt(name: String, giftQuantity: Int, hasReceivedPromotion: Boolean) {
+    private fun updateGiftReceipt(
+        name: String, giftQuantity: Int, hasReceivedPromotion: Boolean
+    ) {
         val updatedNotReceivedPromotion = getReceivedPromotion(name, hasReceivedPromotion)
         _state = _state.copy(
             giftReceipt = _state.giftReceipt.copy(
                 items = _state.giftReceipt.items.apply {
                     this[name] = this.getOrDefault(name, 0) + giftQuantity
-                },
-                notReceivedPromotion = updatedNotReceivedPromotion
+                }, notReceivedPromotion = updatedNotReceivedPromotion
             )
         )
     }
 
     // 사용자가 결제 해야할 항목 추가
     private fun addPaymentReceipt(
-        productName: String,
-        productQuantity: Int,
-        productPrice: Int,
-        shortageStock: Int = 0
+        productName: String, productQuantity: Int, productPrice: Int, shortageStock: Int = 0
     ) {
         if (shortageStock > 0) addShortageStock(productName, shortageStock)
         val updatedReceipt = getUpdatePaymentReceipt(productName, productQuantity, productPrice)
@@ -209,18 +211,20 @@ class ViewModel(
         )
     }
 
-    private fun getUpdatePaymentReceipt(name: String, quantity: Int, price: Int): PaymentReceipt {
+    private fun getUpdatePaymentReceipt(
+        name: String, quantity: Int, price: Int
+    ): PaymentReceipt {
         return _state.paymentReceipt.copy(
             items = _state.paymentReceipt.items + PaymentReceiptItem(
-                name = name,
-                price = price,
-                quantity = quantity
+                name = name, price = price, quantity = quantity
             )
         )
     }
 
     // 추가 증정 프로모션 추가
-    private fun getReceivedPromotion(name: String, hasReceivedPromotion: Boolean): List<String> {
+    private fun getReceivedPromotion(
+        name: String, hasReceivedPromotion: Boolean
+    ): List<String> {
         if (hasReceivedPromotion) {
             return _state.giftReceipt.notReceivedPromotion + name
         }
@@ -273,9 +277,7 @@ class ViewModel(
 
     fun makeOutRecipeState() {
         val receipt = makeOutReceiptUseCase(
-            _state.paymentReceipt,
-            _state.giftReceipt,
-            _state.membershipApply
+            _state.paymentReceipt, _state.giftReceipt, _state.membershipApply
         )
         removeSoldStock()
         val makeOutReceipt = UiEvent.MakeOutReceipt(receipt)
@@ -288,14 +290,9 @@ class ViewModel(
             val currentStock = _state.products.items.filter { it.name == product.name }
             if (currentStock.size == 1) removeNonPromotionProduct(currentStock, soldStock)
             if (currentStock.size == 2) {
-                val isPromotionSoldOut = currentStock[0].quantity == OutputRules.OUT_OF_STOCK.toString()
-                val nonPromotionStockIsSoldOut = currentStock[1].quantity.removeStockUnitSuffix()
-                removePromotionStock(
-                    nonPromotionStockIsSoldOut,
-                    isPromotionSoldOut,
-                    currentStock,
-                    soldStock
-                )
+                val isPromotionSoldOut = currentStock[0].quantity == "${OutputRules.OUT_OF_STOCK}"
+                val nonPromotionStock = currentStock[1].quantity.removeStockUnitSuffix()
+                removePromotionStock(nonPromotionStock, isPromotionSoldOut, currentStock, soldStock)
             }
         }
     }
@@ -309,23 +306,35 @@ class ViewModel(
     private fun removePromotionStock(
         nonPromotionStock: Int,
         isPromotionSoldOut: Boolean,
-        currentStock: List<ProductItem>,
+        stock: List<ProductItem>,
         soldStock: Int
     ) {
-        if (isPromotionSoldOut) {
-            currentStock[1].quantity = (nonPromotionStock - soldStock).toString() + STOCK_UNIT.toString()
-        }
-        val promotionStockQuantity = currentStock[0].quantity.removeStockUnitSuffix()
+        if (isPromotionSoldOut) stock[1].quantity = "${nonPromotionStock - soldStock}$STOCK_UNIT"
+        val promotionStockQuantity = stock[0].quantity.removeStockUnitSuffix()
         if (promotionStockQuantity < soldStock) {
-            currentStock[0].quantity = OutputRules.OUT_OF_STOCK.toString()
-            currentStock[1].quantity =
-                (nonPromotionStock - soldStock - promotionStockQuantity).toString() + STOCK_UNIT.toString()
+            whenPromotionStockNotEnough(stock, nonPromotionStock, soldStock, promotionStockQuantity)
         } else {
-            currentStock[0].quantity = (promotionStockQuantity - soldStock).toString() + STOCK_UNIT.toString()
+            stock[0].quantity = "${promotionStockQuantity - soldStock}$STOCK_UNIT"
         }
     }
 
-    private fun getSumOfProductQuantity(product: PaymentReceiptItem, receipt: GiftReceipt): Int {
+    private fun whenPromotionStockNotEnough(
+        stock: List<ProductItem>,
+        nonPromotionStock: Int,
+        soldStock: Int,
+        promotionStock: Int
+    ) {
+        stock[0].quantity = "${OutputRules.OUT_OF_STOCK}"
+        stock[1].quantity = "${nonPromotionStock - soldStock - promotionStock}$STOCK_UNIT"
+    }
+
+    private fun getSumOfProductQuantity(
+        product: PaymentReceiptItem, receipt: GiftReceipt
+    ): Int {
         return receipt.items[product.name]?.plus(product.quantity) ?: product.quantity
+    }
+
+    fun whenUserSelectAdditionalPurchase() {
+        _state = _state.clearOrdersAndReceipts()
     }
 }
