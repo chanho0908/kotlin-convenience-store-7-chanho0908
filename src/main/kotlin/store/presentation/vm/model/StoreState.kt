@@ -15,6 +15,16 @@ data class StoreState(
     val membershipApply: Boolean,
     val uiEvent: UiEvent
 ) {
+    fun clearOrdersAndReceipts(): StoreState = this.copy(
+        orders = Orders(emptyList()),
+        paymentReceipt = PaymentReceipt(emptyList(), emptyMap()),
+        giftReceipt = GiftReceipt(mutableMapOf(), emptyList()),
+        membershipApply = false,
+        uiEvent = UiEvent.UserAccess(
+            "${OutputRules.WELCOME}\n${this.products.makeCurrentStockGuideMessage()}"
+        )
+    )
+
     companion object {
         fun create() = StoreState(
             Products(emptyList()),
