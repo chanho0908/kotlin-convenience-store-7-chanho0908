@@ -42,15 +42,7 @@ class MakeOutReceiptUseCase {
         val discount = giftReceipt.items.mapNotNull { (giftName, giftQuantity) ->
             paymentReceipt.items.find { it.name == giftName }?.price?.times(giftQuantity)
         }.sum()
-        return "$membershipDiscountForm\n${OutputRules.recipeEventDiscountFormat(discount)}"
-    }
-
-    private fun applyMembershipDiscount(totalPrice: Int): Pair<String, Int> {
-        val membershipDiscount =
-            (totalPrice * 0.3).toInt().coerceAtMost(OutputRules.memberShipDiscountMax())
-        val membershipFormat =
-            OutputRules.recipeMembershipDiscountFormat(membershipDiscount.toKoreanUnit())
-        return membershipFormat to membershipDiscount
+        return "${OutputRules.recipeEventDiscountFormat(discount)}\n$membershipDiscountForm"
     }
 
     private fun makeTotalQuantityAndPrice(payment: PaymentReceipt, gift: GiftReceipt): TotalData {
