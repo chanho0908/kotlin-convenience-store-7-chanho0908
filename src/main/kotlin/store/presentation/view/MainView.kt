@@ -1,6 +1,7 @@
 package store.presentation.view
 
 import store.domain.ext.isNo
+import store.domain.ext.isYes
 import store.domain.model.output.OutputRules
 import store.presentation.vm.ViewModel
 import store.presentation.event.UiEvent
@@ -75,6 +76,19 @@ class MainView(
         viewModel.whenUserRequestMembership(input)
     }
 
+    private fun askForAdditionalPurchase(){
+        outputView.printAskForAdditionalPurchase()
+        val input =  retryWhenNoException {
+            val input = inputView.readItem()
+            viewModel.whenUserInputYesOrNo(input)
+            input
+        }
+        if (input.isYes()) {
+            viewModel.whenUserSelectAdditionalPurchase()
+            checkUiState()
+        }
+    }
+
     private fun suggestAdditionalOption(msg: String): String {
         outputView.printMessage(msg)
         return retryWhenNoException {
@@ -98,5 +112,6 @@ class MainView(
         outputView.printMessage(event.receipt.totalAmount)
         outputView.printMessage(event.receipt.eventDiscount)
         outputView.printMessage(event.receipt.payment)
+        askForAdditionalPurchase()
     }
 }

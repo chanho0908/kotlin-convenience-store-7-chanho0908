@@ -18,4 +18,8 @@ class OutputView {
     fun printDottedLine() {
         println("${OutputRules.DOTTED_LINE}")
     }
+
+    fun printAskForAdditionalPurchase() {
+        println("${OutputRules.END}")
+    }
 }
