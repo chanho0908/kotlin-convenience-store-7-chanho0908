@@ -24,7 +24,7 @@ enum class OutputRules(private val msg: String) {
     RECIPE_PROMOTION_PRODUCT("%s\t\t\t\t\t%d"),
     DOTTED_LINE("===================================="),
     RECIPE_TOTAL("총구매액\t\t\t\t%d\t\t%s"),
-    RECIPE_EVENT_DISCOUNT("행사할인\t\t\t\t\t\t-%d"),
+    RECIPE_EVENT_DISCOUNT("행사할인\t\t\t\t\t\t-%s"),
     RECIPE_MEMBERSHIP_DISCOUNT("멤버십할인\t\t\t\t\t\t-%s"),
     RECIPE_TOTAL_PRICE("내실돈\t\t\t\t\t\t%s"),
     END("\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)"),
@@ -63,7 +63,7 @@ enum class OutputRules(private val msg: String) {
             return RECIPE_TOTAL.toString().format(totalQuantity, totalPrice)
         }
 
-        fun recipeEventDiscountFormat(eventDiscount: Int): String {
+        fun recipeEventDiscountFormat(eventDiscount: String): String {
             return RECIPE_EVENT_DISCOUNT.toString().format(eventDiscount)
         }
 
