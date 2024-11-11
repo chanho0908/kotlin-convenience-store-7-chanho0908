@@ -1,5 +1,8 @@
 package store
 
+import store.app.DependencyInjector
+
 fun main() {
-    // TODO: 프로그램 구현
+    val di = DependencyInjector()
+    di.injectMainView()
 }
