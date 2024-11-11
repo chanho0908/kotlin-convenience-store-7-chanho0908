@@ -9,77 +9,82 @@ import store.domain.model.receipt.Receipt
 
 class MakeOutReceiptUseCase {
     operator fun invoke(payment: PaymentReceipt, gift: GiftReceipt, membership: Boolean): Receipt {
-        val totalData = makeTotalQuantityAndPrice(payment, gift)
-        val (membershipForm, membershipDiscount) = getMembershipDiscount(membership, totalData.totalPrice)
-        val discount = makeDiscountFormat(membershipForm, payment, gift)
+        val totalData = calculateTotalQuantityAndPrice(payment, gift)
+        val (membershipForm, membershipDiscount) = calculateMembershipDiscount(membership, getNonPromotionPrice(payment, gift))
+        val discount = calculateDiscountFormat(membershipForm, payment, gift)
+
+        val finalPrice = totalData.totalPrice - membershipDiscount - discount.second
+
         return Receipt(
-            makeReceiptForm(payment, gift),
-            makeGiftReceiptForm(gift),
+            formatReceiptItems(payment, gift),
+            formatGiftReceipt(gift),
             OutputRules.recipeTotalFormat(totalData.totalQuantity, totalData.totalPrice.toKoreanUnit()),
             discount.first,
-            OutputRules.recipeTotalPriceFormat(
-                (totalData.totalPrice - membershipDiscount - discount.second).toKoreanUnit())
+            OutputRules.recipeTotalPriceFormat(finalPrice.toKoreanUnit())
         )
     }
 
-    private fun makeReceiptForm(paymentReceipt: PaymentReceipt, giftReceipt: GiftReceipt): String {
-        return paymentReceipt.items.joinToString("\n") { product ->
-            val totalProductQuantity = getSumOfProductQuantity(product, giftReceipt)
-            val price = (product.originPrice * totalProductQuantity).toKoreanUnit()
-            OutputRules.recipeProductFormat(product.name, totalProductQuantity, price)
+    private fun formatReceiptItems(payment: PaymentReceipt, gift: GiftReceipt): String {
+        val productQuantities = payment.items.map { product ->
+            val totalQuantity = getSumOfProductQuantity(product, gift)
+            val price = (product.originPrice * totalQuantity).toKoreanUnit()
+            OutputRules.recipeProductFormat(product.name, totalQuantity, price)
         }
+        return productQuantities.joinToString("\n")
     }
 
-    private fun makeGiftReceiptForm(giftReceipt: GiftReceipt): String {
-        return giftReceipt.items.entries.joinToString("\n") { (name, quantity) ->
+    private fun formatGiftReceipt(gift: GiftReceipt): String {
+        return gift.items.entries.joinToString("\n") { (name, quantity) ->
             OutputRules.recipePromotionFormat(name, quantity)
         }
     }
 
-    private fun makeDiscountFormat(
-        membershipDiscountForm: String,
+    private fun calculateDiscountFormat(
+        membershipForm: String,
         paymentReceipt: PaymentReceipt,
         giftReceipt: GiftReceipt
     ): Pair<String, Int> {
-        val discount = giftReceipt.items.mapNotNull { (giftName, giftQuantity) ->
-            paymentReceipt.items.find { it.name == giftName }?.originPrice?.times(giftQuantity)
-        }.sum()
+        val discount = calculateGiftDiscount(paymentReceipt, giftReceipt)
         val eventDiscountFormat = OutputRules.recipeEventDiscountFormat(discount.toKoreanUnit())
-        return Pair("$eventDiscountFormat\n$membershipDiscountForm", discount)
+        return Pair("$eventDiscountFormat\n$membershipForm", discount)
     }
 
-    private fun makeTotalQuantityAndPrice(payment: PaymentReceipt, gift: GiftReceipt): TotalData {
-        var totalQuantity = 0
-        var totalPrice = 0
+    private fun calculateGiftDiscount(paymentReceipt: PaymentReceipt, giftReceipt: GiftReceipt): Int {
+        return giftReceipt.items.entries.sumOf { (giftName, giftQuantity) ->
+            paymentReceipt.items.find { it.name == giftName }?.originPrice?.times(giftQuantity) ?: 0
+        }
+    }
 
-        payment.items.forEach { product ->
-            val totalProductQuantity = getSumOfProductQuantity(product, gift)
-            totalQuantity += totalProductQuantity
-            totalPrice += product.originPrice * totalProductQuantity
+    private fun calculateTotalQuantityAndPrice(payment: PaymentReceipt, gift: GiftReceipt): TotalData {
+        val totalQuantity = payment.items.sumOf { product ->
+            getSumOfProductQuantity(product, gift)
+        }
+        val totalPrice = payment.items.sumOf { product ->
+            product.originPrice * getSumOfProductQuantity(product, gift)
         }
         return TotalData(totalQuantity, totalPrice)
     }
 
-    private fun getMembershipDiscount(membership: Boolean, totalPrice: Int): Pair<String, Int> {
-        if (membership) {
-            return applyMembershipDiscount(totalPrice)
+    private fun calculateMembershipDiscount(membership: Boolean, totalPrice: Int): Pair<String, Int> {
+        return if (membership) {
+            applyMembershipDiscount(totalPrice)
+        } else {
+            Pair(OutputRules.recipeMembershipDiscountFormat("0"), 0)
         }
-        return Pair(OutputRules.recipeMembershipDiscountFormat("0"), 0)
     }
 
     private fun applyMembershipDiscount(totalPrice: Int): Pair<String, Int> {
-        val membershipDiscount =
-            (totalPrice * 0.3).toInt().coerceAtMost(OutputRules.memberShipDiscountMax())
-        val membershipFormat =
-            OutputRules.recipeMembershipDiscountFormat(membershipDiscount.toKoreanUnit())
-        return membershipFormat to membershipDiscount
+        val discount = (totalPrice * 0.3).toInt().coerceAtMost(OutputRules.memberShipDiscountMax())
+        return OutputRules.recipeMembershipDiscountFormat(discount.toKoreanUnit()) to discount
     }
 
-    private fun getSumOfProductQuantity(
-        product: PaymentReceiptItem,
-        giftReceipt: GiftReceipt
-    ): Int {
+    private fun getSumOfProductQuantity(product: PaymentReceiptItem, giftReceipt: GiftReceipt): Int {
         return giftReceipt.items[product.name]?.plus(product.quantity) ?: product.quantity
+    }
+
+    private fun getNonPromotionPrice(paymentReceipt: PaymentReceipt, giftReceipt: GiftReceipt): Int {
+        return paymentReceipt.items.filterNot { giftReceipt.items.contains(it.name) }
+            .sumOf { it.originPrice * it.quantity }
     }
 
     private data class TotalData(val totalQuantity: Int, val totalPrice: Int)
