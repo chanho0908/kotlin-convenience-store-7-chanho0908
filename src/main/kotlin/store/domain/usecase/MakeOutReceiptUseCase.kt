@@ -48,9 +48,9 @@ class MakeOutReceiptUseCase {
     private fun applyMembershipDiscount(totalPrice: Int): Pair<String, Int> {
         val membershipDiscount =
             (totalPrice * 0.3).toInt().coerceAtMost(OutputRules.memberShipDiscountMax())
-        return OutputRules.recipeMembershipDiscountFormat(
-            membershipDiscount.toKoreanUnit()
-        ) to membershipDiscount
+        val membershipFormat =
+            OutputRules.recipeMembershipDiscountFormat(membershipDiscount.toKoreanUnit())
+        return membershipFormat to membershipDiscount
     }
 
     private fun makeTotalQuantityAndPrice(payment: PaymentReceipt, gift: GiftReceipt): TotalData {

@@ -54,8 +54,11 @@ class ViewModel(
 
     private fun onCompleteCheckOrderValidation(order: String) {
         val extractedOrders = extractOrdersUseCase(order)
-        val newOrders = Orders(extractedOrders.map { Order(it.first, it.second, NoPromotion) })
-
+        val newOrders = Orders(
+            extractedOrders.map {
+                Order(name = it.first, quantity = it.second, promotion = NoPromotion)
+            }
+        )
         _state = _state.copy(orders = newOrders)
         applyPromotionsToOrders()
     }
@@ -88,11 +91,8 @@ class ViewModel(
 
         when (promotion) {
             is InProgress -> handleOrderPromotionStock(order, productPrice, promotion)
-            is NotInProgress, NoPromotion -> addPaymentReceipt(
-                order.name,
-                order.quantity,
-                productPrice
-            )
+            is NotInProgress, NoPromotion ->
+                addPaymentReceipt(order.name, order.quantity, productPrice)
         }
     }
 
@@ -104,15 +104,15 @@ class ViewModel(
         }
     }
 
-    private fun whenPromotionStockEnough(
-        order: Order, productPrice: Int, promotion: InProgress
-    ) {
+    private fun whenPromotionStockEnough(order: Order, productPrice: Int, promotion: InProgress) {
         val promotionResult = calculateWithPromotion(order.quantity, promotion.buy, promotion.get)
         updateReceiptForPromotion(order.name, productPrice, promotionResult)
     }
 
     private fun calculateShortageStock(
-        stockQuantity: Int, orderQuantity: Int, promotion: InProgress
+        stockQuantity: Int,
+        orderQuantity: Int,
+        promotion: InProgress
     ): Int {
         val bundles = stockQuantity % (promotion.buy + promotion.get)
         val remainder = orderQuantity - stockQuantity
@@ -124,9 +124,8 @@ class ViewModel(
         val stock = _state.products.getPromotionStock(order.name)
         val productPrice = getProductPrice(order.name)
         val shortageStock = calculateShortageStock(stock, order.quantity, promotion)
-        val (buyingAmount, promotionGift) = calculatePromotionDetails(
-            shortageStock, order, promotion
-        )
+        val (buyingAmount, promotionGift) =
+            calculatePromotionDetails(shortageStock, order, promotion)
         val applyPromotion = ApplyPromotion(buyingAmount, promotionGift, false)
         handleReceiptForNotEnoughPromotion(
             order.name, applyPromotion, buyingAmount * productPrice, shortageStock
@@ -176,7 +175,6 @@ class ViewModel(
         updateGiftReceipt(name, updatedGiftQuantity, result.hasReceivedPromotion)
     }
 
-    // 프로모션 증정 항목 추가
     private fun updateGiftReceipt(
         name: String, giftQuantity: Int, hasReceivedPromotion: Boolean
     ) {
@@ -190,7 +188,6 @@ class ViewModel(
         )
     }
 
-    // 사용자가 결제 해야할 항목 추가
     private fun addPaymentReceipt(
         productName: String, productQuantity: Int, productPrice: Int, shortageStock: Int = 0
     ) {
@@ -199,7 +196,6 @@ class ViewModel(
         _state = _state.copy(paymentReceipt = updatedReceipt)
     }
 
-    // 포로모션 적용 없이 계산할 수량을 계산
     private fun addShortageStock(productName: String, shortageStock: Int) {
         val updatedShortageStock =
             _state.paymentReceipt.shortageStock + (productName to shortageStock)
@@ -221,7 +217,6 @@ class ViewModel(
         )
     }
 
-    // 추가 증정 프로모션 추가
     private fun getReceivedPromotion(
         name: String, hasReceivedPromotion: Boolean
     ): List<String> {
@@ -244,12 +239,8 @@ class ViewModel(
     }
 
     fun addOrRemoveNotReceivedPromotion(idx: Int, input: String) {
-        if (input.isNo()) {
-            noReceivePromotion(idx)
-        }
-        if (input.isYes()) {
-            addNotReceivedPromotion(idx)
-        }
+        if (input.isNo()) { noReceivePromotion(idx) }
+        if (input.isYes()) { addNotReceivedPromotion(idx) }
     }
 
     private fun noReceivePromotion(idx: Int) {
@@ -328,9 +319,7 @@ class ViewModel(
         stock[1].quantity = "${nonPromotionStock - soldStock - promotionStock}$STOCK_UNIT"
     }
 
-    private fun getSumOfProductQuantity(
-        product: PaymentReceiptItem, receipt: GiftReceipt
-    ): Int {
+    private fun getSumOfProductQuantity(product: PaymentReceiptItem, receipt: GiftReceipt): Int {
         return receipt.items[product.name]?.plus(product.quantity) ?: product.quantity
     }
 

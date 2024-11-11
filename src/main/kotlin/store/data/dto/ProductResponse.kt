@@ -16,24 +16,18 @@ data class ProductResponse(
     val promotion: String?
 ) {
     fun toDomainModel(): ProductItem {
-        val item = ProductItem(
-            name = name,
-            price = this.price.toKoreanUnit(),
-            quantity = quantity,
-            promotion = promotion
-        )
+        val koreaUnitPrice = this.price.toKoreanUnit()
+        val item = ProductItem(name, koreaUnitPrice, quantity, promotion)
         return item
     }
 }
 
 fun List<String>.toProductResponse(): ProductResponse {
     val name = this[PRODUCT_NAME.getIndex()]
-
     val price = this[PRODUCT_PRICE.getIndex()].toInt()
 
     val quantity = if (this[PRODUCT_QUANTITY.getIndex()] == "0") OutputRules.OUT_OF_STOCK.toString()
     else this[PRODUCT_QUANTITY.getIndex()] + STOCK_UNIT.toString()
-
     val promotion = if (this[PRODUCT_PROMOTION.getIndex()] == "null") ""
     else this[PRODUCT_PROMOTION.getIndex()]
 

@@ -83,7 +83,7 @@ class CheckOrderValidationUseCase {
         return products.items
             .filter { it.name == name && it.quantity != "${OutputRules.OUT_OF_STOCK}" }
             .map { it.quantity.removeStockUnitSuffix() }
-            .sumOf { it.toInt() }
+            .sumOf { it }
     }
 
     companion object {

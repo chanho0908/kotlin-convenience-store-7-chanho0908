@@ -15,28 +15,16 @@ data class PromotionResponse(
     val endDate: String,
 ){
     fun toDomainModel(): PromotionItem {
-        return PromotionItem(
-            name = name,
-            buy = buy,
-            get = get,
-            startDate = startDate,
-            endDate = endDate
-        )
+        return PromotionItem(name, buy, get, startDate, endDate)
     }
 }
 
 fun List<String>.toPromotionResponse(): PromotionResponse {
-    val name = PROMOTION_NAME.getIndex()
-    val buy = PROMOTION_BUY.getIndex()
-    val get = PROMOTION_GET.getIndex()
-    val startDate = PROMOTION_START_DATE.getIndex()
-    val endDate = PROMOTION_END_DATE.getIndex()
+    val name = this[PROMOTION_NAME.getIndex()]
+    val buy = this[PROMOTION_BUY.getIndex()].toInt()
+    val get = this[PROMOTION_GET.getIndex()].toInt()
+    val startDate = this[PROMOTION_START_DATE.getIndex()]
+    val endDate = this[PROMOTION_END_DATE.getIndex()]
 
-    return PromotionResponse(
-        name = this[name],
-        buy = this[buy].toInt(),
-        get = this[get].toInt(),
-        startDate = this[startDate],
-        endDate = this[endDate]
-    )
+    return PromotionResponse(name, buy, get, startDate, endDate)
 }
