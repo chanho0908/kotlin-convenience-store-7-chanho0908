@@ -21,7 +21,7 @@ data class StoreState(
         giftReceipt = GiftReceipt(mutableMapOf(), emptyList()),
         membershipApply = false,
         uiEvent = UiEvent.UserAccess(
-            "${OutputRules.WELCOME}\n${this.products.makeCurrentStockGuideMessage()}"
+            "\n${OutputRules.WELCOME}\n${this.products.makeCurrentStockGuideMessage()}"
         )
     )
 

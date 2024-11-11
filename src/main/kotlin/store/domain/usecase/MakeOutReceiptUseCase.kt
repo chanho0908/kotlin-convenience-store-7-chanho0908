@@ -1,7 +1,13 @@
 package store.domain.usecase
 
 import store.domain.ext.toKoreanUnit
-import store.domain.model.output.OutputRules
+import store.domain.model.output.OutputRules.Companion.recipeTotalFormat
+import store.domain.model.output.OutputRules.Companion.recipeMembershipDiscountFormat
+import store.domain.model.output.OutputRules.Companion.recipeEventDiscountFormat
+import store.domain.model.output.OutputRules.Companion.recipeTotalPriceFormat
+import store.domain.model.output.OutputRules.Companion.recipeProductFormat
+import store.domain.model.output.OutputRules.Companion.recipePromotionFormat
+import store.domain.model.output.OutputRules.Companion.memberShipDiscountMax
 import store.domain.model.receipt.GiftReceipt
 import store.domain.model.receipt.PaymentReceipt
 import store.domain.model.receipt.PaymentReceiptItem
@@ -10,7 +16,8 @@ import store.domain.model.receipt.Receipt
 class MakeOutReceiptUseCase {
     operator fun invoke(payment: PaymentReceipt, gift: GiftReceipt, membership: Boolean): Receipt {
         val totalData = calculateTotalQuantityAndPrice(payment, gift)
-        val (membershipForm, membershipDiscount) = calculateMembershipDiscount(membership, getNonPromotionPrice(payment, gift))
+        val (membershipForm, membershipDiscount) =
+            calculateMembershipDiscount(membership, getNonPromotionPrice(payment, gift))
         val discount = calculateDiscountFormat(membershipForm, payment, gift)
 
         val finalPrice = totalData.totalPrice - membershipDiscount - discount.second
@@ -18,9 +25,9 @@ class MakeOutReceiptUseCase {
         return Receipt(
             formatReceiptItems(payment, gift),
             formatGiftReceipt(gift),
-            OutputRules.recipeTotalFormat(totalData.totalQuantity, totalData.totalPrice.toKoreanUnit()),
+            recipeTotalFormat(totalData.totalQuantity, totalData.totalPrice.toKoreanUnit()),
             discount.first,
-            OutputRules.recipeTotalPriceFormat(finalPrice.toKoreanUnit())
+            recipeTotalPriceFormat(finalPrice.toKoreanUnit())
         )
     }
 
@@ -28,14 +35,14 @@ class MakeOutReceiptUseCase {
         val productQuantities = payment.items.map { product ->
             val totalQuantity = getSumOfProductQuantity(product, gift)
             val price = (product.originPrice * totalQuantity).toKoreanUnit()
-            OutputRules.recipeProductFormat(product.name, totalQuantity, price)
+            recipeProductFormat(product.name, totalQuantity, price)
         }
         return productQuantities.joinToString("\n")
     }
 
     private fun formatGiftReceipt(gift: GiftReceipt): String {
         return gift.items.entries.joinToString("\n") { (name, quantity) ->
-            OutputRules.recipePromotionFormat(name, quantity)
+            recipePromotionFormat(name, quantity)
         }
     }
 
@@ -45,7 +52,7 @@ class MakeOutReceiptUseCase {
         giftReceipt: GiftReceipt
     ): Pair<String, Int> {
         val discount = calculateGiftDiscount(paymentReceipt, giftReceipt)
-        val eventDiscountFormat = OutputRules.recipeEventDiscountFormat(discount.toKoreanUnit())
+        val eventDiscountFormat = recipeEventDiscountFormat(discount.toKoreanUnit())
         return Pair("$eventDiscountFormat\n$membershipForm", discount)
     }
 
@@ -69,13 +76,13 @@ class MakeOutReceiptUseCase {
         return if (membership) {
             applyMembershipDiscount(totalPrice)
         } else {
-            Pair(OutputRules.recipeMembershipDiscountFormat("0"), 0)
+            Pair(recipeMembershipDiscountFormat("0"), 0)
         }
     }
 
     private fun applyMembershipDiscount(totalPrice: Int): Pair<String, Int> {
-        val discount = (totalPrice * 0.3).toInt().coerceAtMost(OutputRules.memberShipDiscountMax())
-        return OutputRules.recipeMembershipDiscountFormat(discount.toKoreanUnit()) to discount
+        val discount = (totalPrice * 0.3).toInt().coerceAtMost(memberShipDiscountMax())
+        return recipeMembershipDiscountFormat(discount.toKoreanUnit()) to discount
     }
 
     private fun getSumOfProductQuantity(product: PaymentReceiptItem, giftReceipt: GiftReceipt): Int {
